@@ -1,0 +1,118 @@
+# Module 2 Finding Numbers in a Haystack
+
+In this assignment you will read through and parse a file with text and numbers. You will extract all the numbers in the file and compute the sum of the numbers.
+
+Data Files
+We provide two files for this assignment. One is a sample file where we give you the sum for your testing and the other is the actual data you need to process for the assignment.
+
+Sample data: http://py4e-data.dr-chuck.net/regex_sum_42.txt (There are 90 values with a sum=445833)
+Actual data: http://py4e-data.dr-chuck.net/regex_sum_2151657.txt (There are 95 values and the sum ends with 250)
+These links open in a new window. Make sure to save the file into the same folder as you will be writing your Python program. Note: Each student will have a distinct data file for the assignment - so only use your own data file for analysis.
+
+
+import re
+numlist = list()
+hand = open('regex_sum_2151657.txt')
+for line in hand:
+    line = line.rstrip()
+    y = re.findall('([0-9]+)',line)
+    if len(y) ==0: #if blank list continue
+        continue
+    for num in y:
+        numlist.append(num)
+print(numlist)
+cal = 0
+for p in numlist:
+    cal = int(p) + cal
+    print(cal)
+
+# Following Links in Python
+
+In this assignment you will write a Python program that expands on http://www.py4e.com/code3/urllinks.py. The program will use urllib to read the HTML from the data files below, extract the href= vaues from the anchor tags, scan for a tag that is in a particular position relative to the first name in the list, follow that link and repeat the process a number of times and report the last name you find.
+
+We provide two files for this assignment. One is a sample file where we give you the name for your testing and the other is the actual data you need to process for the assignment
+
+Sample problem: Start at http://py4e-data.dr-chuck.net/known_by_Fikret.html
+Find the link at position 3 (the first name is 1). Follow that link. Repeat this process 4 times. The answer is the last name that you retrieve.
+Sequence of names: Fikret Montgomery Mhairade Butchi Anayah
+Last name in sequence: Anayah
+Actual problem: Start at: http://py4e-data.dr-chuck.net/known_by_Tegan.html
+Find the link at position 18 (the first name is 1). Follow that link. Repeat this process 7 times. The answer is the last name that you retrieve.
+Hint: The first character of the name of the last page that you will load is: C
+Strategy
+The web pages tweak the height between the links and hide the page after a few seconds to make it difficult for you to do the assignment without writing a Python program. But frankly with a little effort and patience you can overcome these attempts to make it a little harder to complete the assignment without writing a Python program. But that is not the point. The point is to write a clever Python program to solve the program.
+
+
+import urllib.request, urllib.parse, urllib.error
+from bs4 import BeautifulSoup
+import ssl
+
+# Ignore SSL certificate errors
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+
+url = input('Enter -  ')
+
+html = urllib.request.urlopen(url, context=ctx).read()
+soup = BeautifulSoup(html, 'html.parser')
+
+tags = soup('a')
+counts =0
+tick = 0
+for tag in tags[0:18]:
+    y = tag.get('href', None)
+    counts = counts +1
+    print(y, counts)
+
+# Module 6 Calling a JSON API
+
+In this assignment you will write a Python program somewhat similar to http://www.py4e.com/code3/opengeo.py. The program will prompt for a location, contact a web service and retrieve JSON for the web service and parse that data, and retrieve the first plus_code from the JSON. An Open Location Code is a textual identifier that is another form of address based on the location of the address.
+API End Points
+
+To complete this assignment, you should use this API endpoint that has a static subset of the Open Street Map Data.
+
+http://py4e-data.dr-chuck.net/opengeo?
+This API also has no rate limit so you can test as often as you like. If you visit the URL with no parameters, you get "No address..." response.
+To call the API, you need to provide the address that you are requesting as the q= parameter that is properly URL encoded using the urllib.parse.urlencode() function as shown in http://www.py4e.com/code3/opengeo.py
+
+
+Test Data / Sample Execution
+
+You can test to see if your program is working with a location of "South Federal University" which will have a plus_code of "6FV8QPRJ+VQ".
+
+$ python solution.py
+Enter location: South Federal University
+Retrieving http://...
+Retrieved 1329 characters
+Plus code 6FV8QPRJ+VQ
+Turn In
+
+Please run your program to find the plus_code for this location:
+
+National Institute of Technology Jalandhar
+Make sure to enter the name and case exactly as above and enter the plus_code and your Python code below. Hint: The first five characters of the plus_code are "8J3Q9 ..."
+Make sure to retreive the data from the URL specified above and not the normal Google API. Your program should work with the Google API - but the plus_code may not match for this assignment.
+
+import urllib.request, urllib.parse
+import json, ssl
+serviceurl = 'https://py4e-data.dr-chuck.net/opengeo?' # service url stating it is a query parameter
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+
+address = input('Enter location: ')
+
+address = address.strip()
+p = dict()
+p['q'] = address
+
+url = serviceurl + urllib.parse.urlencode(p)
+print('Retrieving', url)
+uh = urllib.request.urlopen(url, context=ctx)
+data = uh.read().decode()
+
+js = json.loads(data)
+plus = js['features'][0]['properties']['plus_code']
+print("Plus_Code: ", plus)
